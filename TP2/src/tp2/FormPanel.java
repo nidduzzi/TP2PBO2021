@@ -4,7 +4,13 @@
  * and open the template in the editor.
  */
 package tp2;
-
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.SQLType;
+import java.awt.Component;
 /**
  *
  * @author ahmad
@@ -14,10 +20,14 @@ public class FormPanel extends javax.swing.JPanel {
     /**
      * Creates new form formPanel
      */
-    public FormPanel() {
+    private Connection con;
+    private Form1 parent;
+    public FormPanel(Connection con, Form1 parent) {
         initComponents();
+        this.con = con;
+        this.parent = parent;
     }
-
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -32,9 +42,9 @@ public class FormPanel extends javax.swing.JPanel {
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jComboBox1 = new javax.swing.JComboBox<>();
-        jTextField1 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
-        jTextField3 = new javax.swing.JTextField();
+        tb_merk = new javax.swing.JTextField();
+        tb_plat = new javax.swing.JTextField();
+        tb_warna = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
 
         setMaximumSize(new java.awt.Dimension(375, 400));
@@ -52,6 +62,11 @@ public class FormPanel extends javax.swing.JPanel {
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Biasa", "Balap", "Sport", "Truk" }));
 
         jButton1.setText("Submit");
+        jButton1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButton1MouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -68,9 +83,9 @@ public class FormPanel extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jButton1)
                     .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 177, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 177, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 177, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(tb_merk, javax.swing.GroupLayout.PREFERRED_SIZE, 177, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(tb_plat, javax.swing.GroupLayout.PREFERRED_SIZE, 177, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(tb_warna, javax.swing.GroupLayout.PREFERRED_SIZE, 177, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(73, 73, 73))
         );
         layout.setVerticalGroup(
@@ -79,15 +94,15 @@ public class FormPanel extends javax.swing.JPanel {
                 .addGap(75, 75, 75)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(tb_merk, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(8, 8, 8)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(tb_plat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(8, 8, 8)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(tb_warna, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(11, 11, 11)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel4)
@@ -98,10 +113,42 @@ public class FormPanel extends javax.swing.JPanel {
         );
 
         jComboBox1.getAccessibleContext().setAccessibleName("cb_jenis");
-        jTextField1.getAccessibleContext().setAccessibleName("tb_merk");
-        jTextField2.getAccessibleContext().setAccessibleName("tb_plat");
-        jTextField3.getAccessibleContext().setAccessibleName("tb_warna");
+        tb_merk.getAccessibleContext().setAccessibleName("tb_merk");
+        tb_plat.getAccessibleContext().setAccessibleName("tb_plat");
+        tb_warna.getAccessibleContext().setAccessibleName("tb_warna");
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
+        // TODO add your handling code here:
+        String merk = this.tb_merk.getText();
+        String plat = this.tb_plat.getText();
+        String warna = this.tb_warna.getText();
+        String jenis = this.jComboBox1.getSelectedItem().toString();
+        if (!merk.isEmpty() && !plat.isEmpty() && !warna.isEmpty() && !jenis.isEmpty()) {
+            try {
+                PreparedStatement pstmt = this.con.prepareStatement("INSERT INTO mobil (merk,plat,warna,jenis)" + "VALUES(?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+                pstmt.setString(1, merk);
+                pstmt.setString(2, plat);
+                pstmt.setString(3, warna);
+                pstmt.setString(4, jenis);
+                int rowaffected = pstmt.executeUpdate();
+                if(rowaffected == 1)
+                {
+                    ResultSet rs = pstmt.getGeneratedKeys();
+                    
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            this.tb_merk.setText("");
+            this.tb_plat.setText("");
+            this.tb_warna.setText("");
+            jComboBox1.setSelectedIndex(0);
+            this.parent.bt_form.setVisible(true);
+            this.parent.bt_table.setVisible(true);
+            this.parent.bt_info.setVisible(true);
+        }
+    }//GEN-LAST:event_jButton1MouseClicked
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -111,8 +158,8 @@ public class FormPanel extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
+    private javax.swing.JTextField tb_merk;
+    private javax.swing.JTextField tb_plat;
+    private javax.swing.JTextField tb_warna;
     // End of variables declaration//GEN-END:variables
 }

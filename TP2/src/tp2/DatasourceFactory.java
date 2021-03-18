@@ -23,12 +23,13 @@ import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
  */
 public class DatasourceFactory {
 
-    public static DataSource getMySQLDataSource() {
+    public DataSource getMySQLDataSource() {
         Properties props = new Properties();
         FileInputStream fis = null;
         MysqlDataSource mysqlDS = null;
         try {
-            fis = new FileInputStream("db.properties");
+            System.out.println("Working Directory = " + System.getProperty("user.dir"));
+            fis = new FileInputStream("src/tp2/db.properties");
             props.load(fis);
             mysqlDS = new MysqlDataSource();
             mysqlDS.setURL(props.getProperty("MYSQL_DB_URL"));
@@ -40,7 +41,7 @@ public class DatasourceFactory {
         return mysqlDS;
     }
 
-    private static void testDataSource(String dbType) {
+    private void testDataSource(String dbType) {
         DataSource ds = null;
         if ("mysql".equals(dbType)) {
             ds = getMySQLDataSource();
@@ -55,7 +56,7 @@ public class DatasourceFactory {
         try {
             con = ds.getConnection();
             stmt = con.createStatement();
-            rs = stmt.executeQuery("select empid, name from Employee");
+            rs = stmt.executeQuery("SELECT * FROM mobil");
             while (rs.next()) {
                 System.out.println("Employee ID=" + rs.getInt("empid") + ", Name=" + rs.getString("name"));
             }

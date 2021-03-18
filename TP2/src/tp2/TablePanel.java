@@ -5,6 +5,11 @@
  */
 package tp2;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.sql.SQLException;
+import javax.swing.table.DefaultTableModel;
 /**
  *
  * @author ahmad
@@ -14,10 +19,34 @@ public class TablePanel extends javax.swing.JPanel {
     /**
      * Creates new form tablePanel
      */
-    public TablePanel() {
+    private Form1 parent;
+    private Connection con;
+    private DefaultTableModel dtm;
+    String header[] = new String[] { "No", "Merk", "Plat", "Warna", "Jenis" };
+    public TablePanel(Connection con, Form1 parent) {
         initComponents();
+        this.con = con;
+        this.parent = parent;
+        this.dtm = new DefaultTableModel(header, 0);
+        this.jTable1.setModel(this.dtm);
+        this.refreshData();
     }
-
+    
+    public void refreshData()
+    {
+        try {
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM mobil");
+            this.dtm.setRowCount(0);
+            while (rs.next()) {
+                Object[] objects = {rs.getInt("id"), rs.getString("merk"), rs.getString("plat"), rs.getString("warna"), rs.getString("jenis")};
+                this.dtm.addRow(objects);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -85,9 +114,7 @@ public class TablePanel extends javax.swing.JPanel {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 365, Short.MAX_VALUE)
-                .addContainerGap())
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 375, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

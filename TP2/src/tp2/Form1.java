@@ -7,6 +7,11 @@ package tp2;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 /**
  *
@@ -21,16 +26,42 @@ public class Form1 extends javax.swing.JFrame {
     /**
      * Creates new form Form1
      */
-    
+    private DatasourceFactory DSF;
+    private DataSource ds;
+    private Connection con;
+
     public Form1() {
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(Form1.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(Form1.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(Form1.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(Form1.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
         initComponents();
-        this.formPanel = new FormPanel();
-        this.tablePanel = new TablePanel();
+        this.DSF = new DatasourceFactory();
+        this.ds = DSF.getMySQLDataSource();
+        try {
+            this.con = ds.getConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        this.formPanel = new FormPanel(this.con, this);
+        this.tablePanel = new TablePanel(this.con, this);
         this.infoPanel = new InfoPanel();
         this.dynamicPanel.setLayout(layout);
-        
+
         GridBagConstraints c = new GridBagConstraints();
-        
+
         c.gridx = 0;
         c.gridy = 0;
         this.dynamicPanel.add(this.formPanel, c);
@@ -43,6 +74,8 @@ public class Form1 extends javax.swing.JFrame {
         this.formPanel.setVisible(false);
         this.tablePanel.setVisible(false);
         this.infoPanel.setVisible(false);
+        this.bt_table.setVisible(false);
+        this.bt_info.setVisible(false);
     }
 
     /**
@@ -56,14 +89,14 @@ public class Form1 extends javax.swing.JFrame {
 
         navbar = new javax.swing.JPanel();
         bt_form = new javax.swing.JButton();
-        tb_info = new javax.swing.JButton();
+        bt_info = new javax.swing.JButton();
         bt_table = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
         dynamicPanel = new javax.swing.JPanel();
+        lb_welcome = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setMaximumSize(new java.awt.Dimension(375, 520));
-        setMinimumSize(new java.awt.Dimension(375, 500));
-        setPreferredSize(new java.awt.Dimension(375, 500));
+        setMinimumSize(new java.awt.Dimension(375, 506));
         setResizable(false);
 
         navbar.setMaximumSize(new java.awt.Dimension(375, 100));
@@ -76,10 +109,10 @@ public class Form1 extends javax.swing.JFrame {
             }
         });
 
-        tb_info.setText("Info");
-        tb_info.addMouseListener(new java.awt.event.MouseAdapter() {
+        bt_info.setText("Info");
+        bt_info.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                tb_infoMouseClicked(evt);
+                bt_infoMouseClicked(evt);
             }
         });
 
@@ -90,42 +123,61 @@ public class Form1 extends javax.swing.JFrame {
             }
         });
 
+        jLabel1.setFont(new java.awt.Font("Source Code Pro Light", 0, 18)); // NOI18N
+        jLabel1.setText("SISTEM PENDATAAN MOBIL BARBAR.CO");
+
         javax.swing.GroupLayout navbarLayout = new javax.swing.GroupLayout(navbar);
         navbar.setLayout(navbarLayout);
         navbarLayout.setHorizontalGroup(
             navbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(navbarLayout.createSequentialGroup()
-                .addGap(97, 97, 97)
-                .addComponent(bt_form)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(bt_table)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(tb_info)
-                .addContainerGap(97, Short.MAX_VALUE))
+                .addGroup(navbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(navbarLayout.createSequentialGroup()
+                        .addGap(97, 97, 97)
+                        .addComponent(bt_form)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(bt_table)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(bt_info))
+                    .addGroup(navbarLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel1)))
+                .addContainerGap(13, Short.MAX_VALUE))
         );
         navbarLayout.setVerticalGroup(
             navbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(navbarLayout.createSequentialGroup()
-                .addGap(66, 66, 66)
+                .addGap(34, 34, 34)
+                .addComponent(jLabel1)
+                .addGap(18, 18, 18)
                 .addGroup(navbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
                     .addComponent(bt_form)
                     .addComponent(bt_table)
-                    .addComponent(tb_info))
+                    .addComponent(bt_info))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         dynamicPanel.setMaximumSize(new java.awt.Dimension(375, 400));
         dynamicPanel.setPreferredSize(new java.awt.Dimension(375, 400));
 
+        lb_welcome.setFont(new java.awt.Font("Rockwell", 0, 18)); // NOI18N
+        lb_welcome.setText("Welcome!");
+
         javax.swing.GroupLayout dynamicPanelLayout = new javax.swing.GroupLayout(dynamicPanel);
         dynamicPanel.setLayout(dynamicPanelLayout);
         dynamicPanelLayout.setHorizontalGroup(
             dynamicPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGroup(dynamicPanelLayout.createSequentialGroup()
+                .addGap(142, 142, 142)
+                .addComponent(lb_welcome)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         dynamicPanelLayout.setVerticalGroup(
             dynamicPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(dynamicPanelLayout.createSequentialGroup()
+                .addGap(184, 184, 184)
+                .addComponent(lb_welcome)
+                .addContainerGap(194, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -138,8 +190,8 @@ public class Form1 extends javax.swing.JFrame {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addComponent(navbar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(navbar, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(dynamicPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
@@ -148,6 +200,7 @@ public class Form1 extends javax.swing.JFrame {
 
     private void bt_formMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bt_formMouseClicked
         // TODO add your handling code here:
+        this.lb_welcome.setVisible(false);
         this.formPanel.setVisible(true);
         this.tablePanel.setVisible(false);
         this.infoPanel.setVisible(false);
@@ -155,17 +208,18 @@ public class Form1 extends javax.swing.JFrame {
 
     private void bt_tableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bt_tableMouseClicked
         // TODO add your handling code here:
+        this.tablePanel.refreshData();
         this.formPanel.setVisible(false);
         this.tablePanel.setVisible(true);
         this.infoPanel.setVisible(false);
     }//GEN-LAST:event_bt_tableMouseClicked
 
-    private void tb_infoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tb_infoMouseClicked
+    private void bt_infoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bt_infoMouseClicked
         // TODO add your handling code here:
         this.formPanel.setVisible(false);
         this.tablePanel.setVisible(false);
         this.infoPanel.setVisible(true);
-    }//GEN-LAST:event_tb_infoMouseClicked
+    }//GEN-LAST:event_bt_infoMouseClicked
 
     /**
      * @param args the command line arguments
@@ -203,10 +257,12 @@ public class Form1 extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton bt_form;
-    private javax.swing.JButton bt_table;
+    public javax.swing.JButton bt_form;
+    public javax.swing.JButton bt_info;
+    public javax.swing.JButton bt_table;
     private javax.swing.JPanel dynamicPanel;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel lb_welcome;
     private javax.swing.JPanel navbar;
-    private javax.swing.JButton tb_info;
     // End of variables declaration//GEN-END:variables
 }
